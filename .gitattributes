@@ -1,0 +1,5 @@
+# Mantiene saltos de línea LF en los archivos del kit, incluso en Windows.
+*.mjs  text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+*.sh   text eol=lf

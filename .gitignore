@@ -1,0 +1,17 @@
+# Secretos (P11): nunca al repositorio
+.env
+.env.*
+!.env.example
+secrets/
+
+# Estado local del kit (la aprobación de planes es por máquina y la da un humano)
+.claude/state/
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Dependencias y artefactos
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
