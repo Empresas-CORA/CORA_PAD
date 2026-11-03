@@ -1,6 +1,6 @@
 # Protocolos de trabajo
 
-Obligatorios para la sesión principal y para todos los agentes. Versión del kit: 0.2.1. P1-P12 y la lista de puntos críticos (P10) confirmados por el humano el 2026-11-01.
+Obligatorios para la sesión principal y para todos los agentes. Versión del kit: 0.2.2. P1-P12 y la lista de puntos críticos (P10) confirmados por el humano el 2026-11-01. P13 añadido el 2026-11-01 a petición del humano, que lo aprueba al confirmar cada cambio.
 
 Si un protocolo estorba, no lo saltes: escala con P10 y propón el cambio con `/retro`.
 
@@ -49,9 +49,9 @@ Si un protocolo estorba, no lo saltes: escala con P10 y propón el cambio con `/
 
 **Cómo se cumple**
 - Una entrada = un archivo nuevo en `docs/bitacora/` con el nombre `AAAA-MM-DD_HHMM_<autor>_<slug>.md` (plantilla en `docs/bitacora/_PLANTILLA.md`).
-- Tipos: `decision`, `cambio`, `hallazgo`, `escalamiento`, `aprobacion`, `incidente`, `correccion`, `retro`.
+- Tipos: `decision`, `cambio`, `hallazgo`, `escalamiento`, `aprobacion`, `incidente`, `correccion`, `retro`, `checkpoint` (ver P13).
 - Para rectificar algo, crea una entrada `correccion` que referencie la anterior.
-- La sesión principal entrega los insumos y el agente `escriba` redacta. Se registra al cerrar cada tarea y en cada decisión.
+- La sesión principal entrega los insumos y el agente `escriba` redacta. Se registra al cerrar cada tarea y en cada decisión. **Excepción (P13):** los `checkpoint` los escribe directamente la sesión principal, porque son breves y deben existir aunque el trabajo se corte.
 - Se hace cumplir con un hook: editar o sobrescribir una entrada existente se bloquea.
 
 ## P5. Plan de desarrollo antes de tocar código (NO NEGOCIABLE)
@@ -174,3 +174,37 @@ Riesgo de esperar:
 - [ ] Cambios confirmados en su commit (el `push` y el despliegue los decide el humano).
 
 "No se da por probado lo que no se ejecutó."
+
+## P13. Continuidad ante límites de contexto y de uso
+
+**Regla.** El estado del trabajo vive en archivos y en git, no en la conversación. Cualquier sesión puede cortarse y otra debe poder retomar sin suponer nada.
+
+**Qué puede cortar el trabajo** (según la documentación de Claude Code, consultada el 2026-11-01)
+
+| Corte | Qué ocurre | Qué se pierde |
+|---|---|---|
+| Límite de uso de la sesión o de la semana | El trabajo se detiene y el mensaje indica a qué hora se reinicia. Se puede esperar, usar créditos de uso (los activa el humano) o, si el límite es de un modelo concreto, cambiar de modelo. Desde Claude Code 2.1.234 puede esperar y continuar solo la tarea interrumpida | Lo que no estaba confirmado en archivos o en git |
+| Contexto lleno | La autocompactación resume el historial | Detalle e instrucciones dadas solo de palabra |
+| Subagente que agota `maxTurns` o entrega un informe incompleto | La tarea delegada queda a medias | El resto de esa tarea |
+| Cierre del editor, error o corte de red | La conversación se interrumpe | Igual que el primero |
+
+**Cómo se cumple**
+1. **Checkpoint.** La sesión principal (no hace falta el `escriba`) crea una entrada de bitácora de tipo `checkpoint`, con el nombre `AAAA-MM-DD_HHMM_<autor>_checkpoint-<plan>-<tn>.md`: al iniciar la tarea, después de cada hito verificable, antes de una acción larga o riesgosa y antes de pausar. Es corta: hecho y verificado, hecho sin verificar, siguiente paso exacto, archivos tocados, rama y último commit, comando de verificación, decisiones y preguntas abiertas.
+2. **Git es el punto de guardado.** Tras cada hito verificable, un commit en la rama de la tarea (P6, P7). `git add` y `git commit` no piden confirmación; `git push` sí (P10).
+3. **Lo que no está en un archivo no existe.** Toda decisión, requisito o instrucción que el humano da a mitad de la tarea se escribe en ese momento en la bitácora, el plan o un ADR.
+4. **Pasos coherentes.** Cada paso termina con el proyecto en un estado que se puede probar. No se dejan archivos interdependientes a medias entre un paso y el siguiente.
+5. **Reanudar con `/retomar`** siempre que se abra una conversación nueva, se reanude una o se compacte el contexto. No se continúa de memoria. (a) Lee el último checkpoint, las entradas recientes y el plan. (b) Mira git: `git status`, `git log -3`, `git diff --stat`. **Si la bitácora y el repositorio discrepan, manda el repositorio.** (c) Ejecuta la verificación de la tarea. (d) Declara el estado en tres listas: hecho y verificado, hecho sin verificar, no iniciado. (e) Propone un solo siguiente paso y espera confirmación del humano si hay discrepancias o algo no se puede verificar (P3). Nunca se rehace desde cero lo ya verificado ni se repite una acción destructiva.
+6. **Prevención.** Tareas que quepan en una sesión (P6): si exige leer o cambiar muchos archivos, o no se puede verificar de una vez, se divide. Una conversación nueva por tarea (`/clear` o conversación nueva), con el estado en archivos. El trabajo voluminoso (leer muchos archivos, pruebas largas, investigación) se delega a subagentes para que no llene el contexto principal; sus peticiones igual consumen uso. Antes de una tarea grande: `/usage` y `/context`. Antes de pausar: `/compact` con instrucciones (ver "Compact instructions" en `CLAUDE.md`).
+7. **Subagente incompleto.** Si agota `maxTurns` o su informe llega cortado, la tarea **no está terminada** (P12). La sesión principal re-delega solo lo pendiente, con un encargo que incluya lo ya hecho y verificado. Si pasa dos veces con la misma tarea, se divide (anomalía, P10).
+8. **Continuación automática tras un límite.** Es aceptable solo con plan vigente, checkpoint reciente y ningún punto crítico (P10) pendiente. Al continuar se aplica igualmente el paso 5. Si no se cumple eso, se detiene y se retoma después con `/retomar`.
+9. **Ahorrar no recorta calidad.** Nunca se omiten la verificación (P12), la revisión cruzada (P9), la bitácora (P4) ni los puntos críticos (P10) para ahorrar tokens. Si el presupuesto no alcanza, se pausa y se retoma.
+10. **Gasto.** Activar créditos de uso o subir límites de gasto es decisión del humano (P10, punto 5).
+
+**Evidencia.** Existe un checkpoint reciente que coincide con git, y `/retomar` produce las tres listas sin discrepancias sin explicar.
+
+**Límites honestos**
+- Un corte abrupto puede llegar antes del siguiente checkpoint: se pierde como máximo el último paso, y `/retomar` lo detecta al comparar con git.
+- Los checkpoints los escribe un modelo y pueden estar equivocados: por eso manda git y se vuelve a verificar.
+- Demasiados checkpoints cuestan tokens: se hacen por hito, no por comando.
+- Tras compactar, el contexto es un resumen y puede perder matices: de ahí la regla 3.
+- Que el hook de arranque se repita tras una compactación está documentado, pero no probado en este entorno (V18).

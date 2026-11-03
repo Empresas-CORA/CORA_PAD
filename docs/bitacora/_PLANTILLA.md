@@ -1,7 +1,7 @@
 ---
 fecha: AAAA-MM-DDTHH:MM:SS-06:00
 autor: <agente o humano>
-tipo: decision | cambio | hallazgo | escalamiento | aprobacion | incidente | correccion | retro
+tipo: decision | cambio | hallazgo | escalamiento | aprobacion | incidente | correccion | retro | checkpoint
 plan: PLAN-NNN        # si aplica
 tarea: Tn             # si aplica
 corrige: <archivo de bitácora>   # solo para tipo "correccion"

@@ -72,6 +72,15 @@ node scripts/test-hooks.mjs                    # 143 OK, 0 con FALLA, dentro del
 | Quedan archivos `.kit-nuevo` solo si había choques; los comparas tú | No los borres sin comparar |
 Para deshacerlo **antes** de hacer commit: `git restore .` revierte los archivos que ya existían (por ejemplo `.gitignore`). Los archivos nuevos del kit quedan sin versionar: míralos con `git clean -nd` (solo **muestra** qué borraría; revisa que sean únicamente archivos del kit) y recién entonces `git clean -fd`. Si ya hiciste commit: `git revert <commit>` o descarta la rama `chore/instalar-kit`.
 
+## V18. Retomar y compactar (P13)
+Hazla con un plan aprobado y una tarea en curso (o tras V5-V10).
+| # | Qué haces | Qué debe pasar | Si falla |
+|---|---|---|---|
+| V18a | Abre una conversación **nueva** y escribe `/retomar` | Informe con las 7 secciones (plan y tarea, hecho y verificado, hecho sin verificar, no iniciado, discrepancias, preguntas, siguiente paso); no modifica nada | Anota qué sección falta |
+| V18b | Pide un checkpoint: *"crea un checkpoint de la tarea actual"* | Aparece un archivo nuevo `docs/bitacora/..._checkpoint-<plan>-<tn>.md` con el contenido de P13 | El `escriba` o el gate lo impide: reporta el mensaje |
+| V18c | Escribe `/compact` y luego pregunta: *"¿recibiste otra vez el mensaje [KIT] Protocolos activos tras compactar?"* | Sí (el hook SessionStart se repite tras compactar) | Si no: la reaparición no ocurre en tu versión; `CLAUDE.md` ("Compact instructions" y P13) cubre el caso, pero anótalo |
+| V18d | Tras V18c, pregunta: *"¿Qué plan y qué tarea están en curso?"* | Responde bien sin releer, o ejecuta `/retomar` por su cuenta | Se perdió el contexto: revisa "Compact instructions" |
+
 ### Si falla `agent_type` (V12)
 Los carriles por rol dependen de ese campo. Si no llega, siguen funcionando las limitaciones por **herramientas** (CEO, CIO, CTO, CISO, CSO y auditor no tienen Write/Edit), pero se pierde el bloqueo por hook para `escriba` y `desarrollador`. Se corrige añadiendo `PreToolUse` en el *frontmatter* de cada agente.
 

@@ -23,6 +23,7 @@ Al iniciar la sesión debes ver en tu contexto un mensaje que empieza con `[KIT]
 - **P10 Escalar.** Pide aprobación humana en puntos críticos (plan, producción, DNS, destructivo, gasto, credenciales, stack, gobernanza) y detente ante anomalías. Usa el bloque `ESCALAMIENTO`.
 - **P11 Secretos.** Nunca leas, imprimas ni guardes secretos. Nada de credenciales de producción para agentes.
 - **P12 Terminado = evidencia.** Sin evidencia ejecutada no está terminado.
+- **P13 Continuidad.** El estado vive en archivos y en git, no en la conversación: checkpoint en bitácora y commit tras cada hito verificable. Al abrir una conversación, reanudarla o tras compactar el contexto, no sigas de memoria: aplica `/retomar`.
 
 ## Flujo estándar
 1. `/estado` — dónde estamos.
@@ -31,6 +32,7 @@ Al iniciar la sesión debes ver en tu contexto un mensaje que empieza con `[KIT]
 4. `/ejecutar-tarea PLAN-NNN Tn` — una tarea a la vez.
 5. `/revision-cruzada` y `/cerrar-tarea`.
 6. `/retro` — qué funcionó y qué hay que ajustar en el kit.
+7. `/retomar` — al abrir una conversación nueva, reanudar o tras un corte o una compactación (solo lectura).
 
 ## Estructura
 - `.claude/agents/` — 11 agentes (CEO, CIO, CTO, CISO, CSO, desarrollador, UX/UI, QA, DevOps, escriba, auditor).
@@ -42,3 +44,6 @@ Al iniciar la sesión debes ver en tu contexto un mensaje que empieza con `[KIT]
 - Al delegar, redacta un encargo autocontenido: objetivo, archivos relevantes, restricciones, criterio de aceptación y formato de salida. Los agentes no ven esta conversación.
 - Los agentes de solo lectura (CEO, CIO, CTO, CISO, CSO, auditor) se pueden consultar en paralelo. El código lo escribe una sola vez, un solo agente, por tarea.
 - Resume al humano los informes; no pegues informes completos salvo que los pida.
+
+## Compact instructions
+Al compactar este contexto conserva siempre: el plan vigente (id y alcance), la tarea en curso y su criterio de aceptación, el último checkpoint de la bitácora, las decisiones y preguntas abiertas, los comandos de verificación y los archivos tocados. Al terminar de compactar no sigas de memoria: aplica los pasos de `/retomar`.
