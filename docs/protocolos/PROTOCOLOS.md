@@ -208,3 +208,4 @@ Riesgo de esperar:
 - Demasiados checkpoints cuestan tokens: se hacen por hito, no por comando.
 - Tras compactar, el contexto es un resumen y puede perder matices: de ahí la regla 3.
 - Que el hook de arranque se repita tras una compactación está documentado, pero no probado en este entorno (V18).
+<!-- prueba V19 -->
